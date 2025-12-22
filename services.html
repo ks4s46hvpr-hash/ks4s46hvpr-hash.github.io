@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>服务介绍 - 中经认证</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2C3E50;
+            --secondary-color: #5D8AA8;
+            --accent-color: #D4AF37;
+            --bg-color: #FAFBFC;
+            --text-color: #2D3748;
+            --light-gray: #F7FAFC;
+            --white: #FFFFFF;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            --shadow-hover: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, var(--bg-color) 0%, var(--white) 100%);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* 头部导航 */
+        header {
+            background: var(--white);
+            box-shadow: var(--shadow);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 2rem;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        nav a:hover, nav a.active {
+            color: var(--accent-color);
+        }
+
+        /* 页面标题区域 */
+        .page-header {
+            margin-top: 80px;
+            padding: 3rem 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--white);
+        }
+
+        .page-header h1 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .page-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* 服务流程区域 */
+        .service-flow {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 3rem;
+        }
+
+        .flow-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .flow-step {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .flow-step:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .step-number {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+            color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0 auto 1.5rem;
+        }
+
+        .flow-step h3 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.3rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .flow-step p {
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+
+        /* 认证项目区域 */
+        .certification-types {
+            background: var(--light-gray);
+            padding: 4rem 2rem;
+        }
+
+        .types-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .types-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .type-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .type-card:hover {
+            transform: translateX(5px);
+            border-left-color: var(--accent-color);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .type-card h3 {
+            font-family: 'Noto Serif SC', serif;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.4rem;
+            text-align: center;
+        }
+
+        .type-card ul {
+            list-style: none;
+        }
+
+        .type-card li {
+            padding: 0.7rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            font-size: 0.95rem;
+            color: var(--text-color);
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .type-card li:last-child {
+            border-bottom: none;
+        }
+
+        .type-card li::before {
+            content: '▶';
+            position: absolute;
+            left: 0;
+            color: var(--accent-color);
+            font-size: 0.8rem;
+        }
+
+       
+
+        /* 页脚 */
+        footer {
+            background: var(--primary-color);
+            color: var(--white);
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-content p {
+            margin-bottom: 0.5rem;
+            opacity: 0.8;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            nav ul {
+                gap: 1rem;
+            }
+
+            .page-header {
+                margin-top: 120px;
+                padding: 2rem 1rem;
+            }
+
+            .page-header h1 {
+                font-size: 2rem;
+            }
+
+            .service-flow, .certification-types, .advantages {
+                padding: 2rem 1rem;
+            }
+
+            .flow-steps, .types-grid, .advantages-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+
+        /* 动画类 */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .fade-in.animated {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部导航 -->
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <img src="logo.svg" alt="中经认证 Logo" style="height: 1.2em; vertical-align: middle; margin-right: 8px;">
+                中经认证
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">首页</a></li>
+                    <li><a href="services.html" class="active">服务介绍</a></li>
+                    <li><a href="about.html">关于我们</a></li>
+                    <li><a href="contact.html">联系我们</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 页面标题 -->
+    <section class="page-header">
+        <h1>服务介绍</h1>
+        <p>专业认证服务，助力企业发展</p>
+    </section>
+
+    <!-- 服务流程 -->
+    <section class="service-flow">
+        <h2 class="section-title">服务流程</h2>
+        <div class="flow-steps">
+            <div class="flow-step fade-in">
+                <div class="step-number">1</div>
+                <h3>咨询洽谈</h3>
+                <p>了解客户需求，提供专业建议，制定初步方案</p>
+            </div>
+            <div class="flow-step fade-in">
+                <div class="step-number">2</div>
+                <h3>签订合同</h3>
+                <p>明确服务内容和标准，签署正式服务协议</p>
+            </div>
+            <div class="flow-step fade-in">
+                <div class="step-number">3</div>
+                <h3>资料准备</h3>
+                <p>指导客户准备相关材料，确保资料完整规范</p>
+            </div>
+            <div class="flow-step fade-in">
+                <div class="step-number">4</div>
+                <h3>审核评估</h3>
+                <p>专业团队进行文件审核和现场评估</p>
+            </div>
+            <div class="flow-step fade-in">
+                <div class="step-number">5</div>
+                <h3>证书颁发</h3>
+                <p>审核通过后颁发认证证书，提供后续服务</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 认证项目 -->
+    <section class="certification-types">
+        <div class="types-container">
+            <h2 class="section-title">认证项目</h2>
+            <div class="types-grid">
+                <div class="type-card fade-in">
+                    <h3>管理体系认证</h3>
+                    <ul>
+                        <li>质量管理体系认证</li>
+                        <li>工程建设施工企业质量管理体系认证（50430）</li>
+                        <li>环境管理体系认证</li>
+                        <li>职业健康安全管理体系认证</li>
+                        <li>能源管理体系认证</li>
+                        <li>知识产权管理体系认证</li>
+                        <li>信息安全管理体系认证</li>
+                        <li>信息技术服务管理体系认证</li>
+                        <li>业务连续性管理体系认证</li>
+                        <li>隐私信息管理体系认证</li>
+                        <li>云服务信息安全管理体系认证</li>
+                        <li>公有云中个人身份信息保护管理体系认证</li>
+                        <li>食品安全管理体系认证</li>
+                        <li>危害分析与关键控制点（HACCP）体系认证</li>
+                        <li>健康、安全与环境管理体系认证（HSE）</li>
+                        <li>医疗器械质量管理体系认证</li>
+                        <li>企业诚信管理体系认证</li>
+                        <li>社会责任管理体系认证</li>
+                        <li>资产管理体系认证</li>
+                        <li>合规管理体系认证</li>
+                        <li>设施管理体系认证</li>
+                    </ul>
+                </div>
+                <div class="type-card fade-in">
+                    <h3>服务认证</h3>
+                    <ul>
+                        <li>商品售后服务认证</li>
+                        <li>物业服务认证</li>
+                        <li>清洁服务认证</li>
+                        <li>生活垃圾分类服务能力认证</li>
+                    </ul>
+                </div>
+                <div class="type-card fade-in">
+                    <h3>其他认证</h3>
+                    <ul>
+                        <li>温室气体排放核查及碳足迹评价</li>
+                        <li>个人身份信息保护行为准则认证</li>
+                        <li>信息业务系统安全管理体系认证</li>
+                        <li>道路交通安全管理体系认证</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+   
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="footer-content">
+            <p>© 2025 北京中经科环质量认证有限公司. All rights reserved.</p>
+            <p>专业认证 | 品质保障 | 值得信赖</p>
+        </div>
+    </footer>
+
+    <script>
+        // 页面加载动画
+        document.addEventListener('DOMContentLoaded', function() {
+            // 滚动动画
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animated');
+                    }
+                });
+            }, observerOptions);
+
+            // 观察所有需要动画的元素
+            document.querySelectorAll('.fade-in').forEach(el => {
+                observer.observe(el);
+            });
+
+            // 步骤卡片依次出现动画
+            const steps = document.querySelectorAll('.flow-step');
+            steps.forEach((step, index) => {
+                step.style.animationDelay = `${index * 0.1}s`;
+            });
+
+            // 平滑滚动
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
