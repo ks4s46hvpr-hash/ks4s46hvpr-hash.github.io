@@ -277,9 +277,18 @@
 
         /* 页脚 */
         /* ===== 页脚零留白 ===== */
-html,body{margin:0;padding:0;width:100%}
-body{min-height:100vh;display:flex;flex-direction:column}
-main{flex:1}              /* 让主体撑开，页脚永远贴底 */
+html,body{
+  margin:0;
+  padding:0;
+  width:100%;
+  overflow-x:hidden;   /* 去掉横向滚动条造成的 1px 缝隙 */
+}
+body{
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+main{flex:1}         /* 让主体撑开，页脚永远贴底 */
 
 footer{
     width:100vw;
@@ -612,3 +621,4 @@ main {
 </body>
 
 </html>
+
