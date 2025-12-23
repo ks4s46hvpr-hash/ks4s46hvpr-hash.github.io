@@ -276,13 +276,26 @@
 
 
         /* 页脚 */
-        footer {
-            background: var(--primary-color);
-            color: var(--white);
-            text-align: center;
-            padding: 3rem 2rem;
-        }
+        /* ===== 页脚零留白 ===== */
+html,body{margin:0;padding:0;width:100%}
+body{min-height:100vh;display:flex;flex-direction:column}
+main{flex:1}              /* 让主体撑开，页脚永远贴底 */
 
+footer{
+    width:100vw;
+    margin-left:calc(-50vw + 50%);   /* 满屏无视父级宽度 */
+    background:var(--primary-color);
+    color:var(--white);
+    text-align:center;
+    padding:3rem 0;                   /* 上下 3rem，左右 0 → 不留白 */
+    line-height:1.6;
+}
+.footer-content{max-width:1200px;margin:0 auto;padding:0 1rem}
+
+/* 手机变小一点 */
+@media (max-width:768px){
+  footer{padding:2rem 0;font-size:0.875rem}
+}
         .footer-content {
             max-width: 1200px;
             margin: 0 auto;
@@ -597,4 +610,5 @@ main {
         });
     </script>
 </body>
+
 </html>
