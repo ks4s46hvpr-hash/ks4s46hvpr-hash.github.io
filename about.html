@@ -274,39 +274,113 @@
             color: var(--text-color);
         }
 
+        /* 企业信念 */
+        .corporate-beliefs {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--white);
+            padding: 4rem 2rem;
+            text-align: center;
+            margin-bottom: 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .beliefs-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .beliefs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .belief-card {
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .belief-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .belief-title {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .belief-text {
+            font-size: 1rem;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        /* 社会承诺 */
+        .social-commitment {
+            margin-bottom: 4rem;
+        }
+
+        .commitment-list {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 3rem;
+            box-shadow: var(--shadow);
+        }
+
+        .commitment-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .commitment-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .commitment-icon {
+            width: 50px;
+            height: 50px;
+            color: var(--accent-color);
+            margin-right: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .commitment-content h3 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.3rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .commitment-content p {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: var(--text-color);
+        }
 
         /* 页脚 */
-        /* ===== 页脚零留白 ===== */
-html,body{
-  margin:0;
-  padding:0;
-  width:100%;
-  overflow-x:hidden;   /* 去掉横向滚动条造成的 1px 缝隙 */
-}
-body{
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-}
-main{flex:1}         /* 让主体撑开，页脚永远贴底 */
+        footer {
+            background: var(--primary-color);
+            color: var(--white);
+            text-align: center;
+            padding: 3rem 2rem;
+        }
 
-<div style="height:2px;background:var(--primary-color);width:100vw;margin-left:calc(-50vw + 50%)"></div>
-
-footer{
-    width:100vw;
-    margin-left:calc(-50vw + 50%);   /* 满屏无视父级宽度 */
-    background:var(--primary-color);
-    color:var(--white);
-    text-align:center;
-    padding:3rem 0;                   /* 上下 3rem，左右 0 → 不留白 */
-    line-height:1.6;
-}
-.footer-content{max-width:1200px;margin:0 auto;padding:0 1rem}
-
-/* 手机变小一点 */
-@media (max-width:768px){
-  footer{padding:2rem 0;font-size:0.875rem}
-}
         .footer-content {
             max-width: 1200px;
             margin: 0 auto;
@@ -372,41 +446,7 @@ footer{
             .commitment-icon {
                 margin: 0 auto 1rem;
             }
-        /* 1. 清零浏览器默认外距 */
-html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-}
-
-/* 2. 页脚贴底（可选，防止内容不足时页脚悬空） */
-body {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-main {
-  flex: 1;          /* 内容区撑开，页脚始终贴底 */
-}
-
-.site-footer {
-  width: 100vw;
-  margin-left: calc(-50vw + 50%);
-  background: #2C3E50;
-  color: #fff;
-  padding: 2rem 0;
-  text-align: center;
-  font-size: 0.875rem;
-  line-height: 1.6;
-}
-
-@media (max-width: 768px) {
-  .site-footer {
-    font-size: 0.75rem;
-    padding: 1.5rem 0;
-  }
-}}
+        }
 
         @media (min-width: 769px) and (max-width: 1024px) {
             .beliefs-grid {
@@ -524,20 +564,16 @@ main {
                 </div>
             </div>
         </section>
-    
-    
-    
+    </main> 
+
     <!-- 页脚 -->
-    <footer class="site-footer">
-        <div class="footer-inner">
+    <footer>
+        <div class="footer-content">
             <p>© 2025 北京中经科环质量认证有限公司. All rights reserved.</p>
-            <p>专业认证服务 | 品质保障 | 值得信赖</p>
+            <p>专业认证 | 品质保障 | 值得信赖</p>
+            <p>以顾客为中心 · 以人为本 · 鼓励创造</p>
         </div>
     </footer>
-
-    <style>
-    .site-footer{width:100vw;margin-left:calc(-50vw + 50%);background:#2C3E50;color:#fff;padding:2rem 0;text-align:center;font-size:.875rem;line-height:1.6}.footer-inner{max-width:1200px;margin:0 auto;padding:0 1rem}@media (max-width:768px){.site-footer{font-size:.75rem;padding:1.5rem 0}}
-    </style>
 
     <script>
         // 页面加载动画
@@ -621,7 +657,4 @@ main {
         });
     </script>
 </body>
-
 </html>
-
-
