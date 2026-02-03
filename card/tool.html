@@ -3,95 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>贺卡生成工具 - 纯本地版</title>
+    <title>贺卡生成工具</title>
     <style>
-        body { font-family: 'Microsoft YaHei', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background: #fff5f5; }
-        .box { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); width: 320px; text-align: center; border: 1px solid #ffcfcf; position: relative; z-index: 2; }
-        h2 { color: #d63031; margin-top: 0; }
-        input { padding: 12px; width: 85%; margin: 10px 0; border: 2px solid #ffcfcf; border-radius: 8px; outline: none; }
-        button { padding: 12px; background: #ff4757; color: white; border: none; border-radius: 8px; cursor: pointer; width: 95%; margin-top: 10px; font-weight: bold; font-size: 16px; }
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background: #fff5f5; }
+        .box { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); width: 300px; text-align: center; }
+        h2 { color: #d63031; margin-bottom: 20px; }
+        input { padding: 12px; width: 85%; margin: 8px 0; border: 2px solid #ffcfcf; border-radius: 8px; outline: none; }
+        button { padding: 12px; background: #ff4757; color: white; border: none; border-radius: 8px; cursor: pointer; width: 95%; margin-top: 10px; font-weight: bold; }
         #canvas-container { margin-top: 20px; display: none; }
-        canvas { max-width: 100%; border-radius: 10px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); border: 4px solid #fff; }
-        .tip { font-size: 14px; color: #ff7675; margin-top: 12px; font-weight: bold; }
+        canvas { max-width: 100%; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .tip { font-size: 14px; color: #ff7675; margin-top: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="box">
         <h2>🧧 贺卡生成工具</h2>
-        <input type="text" id="custName" placeholder="客户尊称 (如: 王总)">
-        <input type="text" id="custDate" placeholder="日期 (如: 2025年2月)">
-        <button onclick="generatePoster()">生成二维码引导图</button>
-        <p id="statusTip" class="tip" style="display:none;">↓ 长按上方图片保存发送给客户</p>
+        <input type="text" id="custName" placeholder="客户姓名">
+        <input type="text" id="custDate" placeholder="显示日期">
+        <button onclick="generate()">生成引导海报</button>
+        <p id="statusTip" class="tip" style="display:none;">已自动复制链接，请长按下方图片保存</p>
     </div>
 
     <div id="canvas-container">
         <canvas id="myCanvas"></canvas>
     </div>
 
-    <!-- 内置迷你二维码生成库 (QRCode.js 压缩版) -->
     <script>
-        var QRCode;!function(){function t(t){this.mode=e.MODE_8BIT_BYTE,this.data=t,this.parsedData=[];for(var r=0,i=this.data.length;i>r;r++){var n=this.data.charCodeAt(r);this.parsedData.push(n)}}t.prototype={getLength:function(){return this.parsedData.length},write:function(t){for(var e=0,r=this.parsedData.length;r>e;e++)t.put(this.parsedData[e],8)}},QRCode=function(t,e){this.typeNumber=4,this.errorCorrectLevel=r.H,this.modules=null,this.moduleCount=0,this.dataCache=null,this.dataList=[],this.addData(t),this.make()};var e={MODE_NUMBER:1,MODE_ALPHA_NUM:2,MODE_8BIT_BYTE:4,MODE_KANJI:8},r={L:1,M:0,Q:3,H:2},i=QRCode.prototype;i.addData=function(e){var r=new t(e);this.dataList.push(r),this.dataCache=null},i.make=function(){this.makeImpl(!1,this.getBestTypeNumber())},i.makeImpl=function(t,e){this.typeNumber=e,this.moduleCount=4*this.typeNumber+17,this.modules=new Array(this.moduleCount);for(var r=0;r<this.moduleCount;r++){this.modules[r]=new Array(this.moduleCount);for(var i=0;i<this.moduleCount;i++)this.modules[r][i]=null}this.setupTypeInfo(t,0),this.setupTypeNumber(t),this.setupPositionProbePattern(0,0),this.setupPositionProbePattern(this.moduleCount-7,0),this.setupPositionProbePattern(0,this.moduleCount-7),this.setupPositionAdjustPattern(),this.setupTimingPattern(),this.setupTypeInfo(t,0),this.mapData(this.dataList,0)},i.getBestTypeNumber=function(){for(var t=1;40>t;t++)if(this.dataList[0].getLength()<=100)return t;return 40},i.setupPositionProbePattern=function(t,e){for(var r=-1;7>=r;r++)if(!(-1>=t+r||this.moduleCount<=t+r))for(var i=-1;7>=i;i++)-1>=e+i||this.moduleCount<=e+i||(r>=0&&6>=r&&(0==i||6==i)||i>=0&&6>=i&&(0==r||6==r)||r>=2&&4>=r&&i>=2&&4>=i?this.modules[t+r][e+i]=!0:this.modules[t+r][e+i]=!1)},i.setupTimingPattern=function(){for(var t=8;this.moduleCount-8>t;t++)null==this.modules[t][6]&&(this.modules[t][6]=t%2==0);for(var e=8;this.moduleCount-8>e;e++)null==this.modules[6][e]&&(this.modules[6][e]=e%2==0)},i.setupPositionAdjustPattern=function(){for(var t=[6,18,30,42,54,66,78,90,102,114,126,138,150,162],e=0;e<t.length;e++)for(var r=0;r<t.length;r++){var i=t[e],n=t[r];if(null==this.modules[i][n])for(var o=-2;2>=o;o++)for(var s=-2;2>=s;s++)this.modules[i+o][n+s]=-2==o||2==o||-2==s||2==s||0==o&&0==s}},i.setupTypeNumber=function(t){for(var e=0;18>e;e++){var r=!t&&1==((21964>>e)&1);this.modules[Math.floor(e/3)][e%3+this.moduleCount-8-3]=r}for(var e=0;18>e;e++){var r=!t&&1==((21964>>e)&1);this.modules[e%3+this.moduleCount-8-3][Math.floor(e/3)]=r}},i.setupTypeInfo=function(t,e){for(var r=1,i=0;15>i;i++){var n=!t&&1==((13357>>i)&1);11>i?this.modules[i][8]=n:this.modules[this.moduleCount-15+i][8]=n}for(var i=0;15>i;i++){var n=!t&&1==((13357>>i)&1);8>i?this.modules[8][this.moduleCount-i-1]=n:this.modules[8][15-i-1+1]=n}this.modules[this.moduleCount-8][8]=!t},i.mapData=function(t,e){for(var r=-1,i=this.moduleCount-1,n=7,o=1,s=i;s>0;s-=2)for(6==s&&s--;;){for(var a=0;2>a;a++)if(null==this.modules[i][s-a]){var h=!1;e<t.length&&(h=t[e].write());this.modules[i][s-a]=h}if(i+=r,-1>i||this.moduleCount<=i){i-=r,r=-r;break}}}};}()
-    </script>
-
-    <script>
+        // 1. 初始化日期
         const today = new Date();
         document.getElementById('custDate').value = `${today.getFullYear()}年${today.getMonth()+1}月`;
 
-        function generatePoster() {
+        function generate() {
             const name = document.getElementById('custName').value;
             const date = document.getElementById('custDate').value;
             if(!name) return alert('请输入姓名');
 
+            // 2. 构造 H5 链接
             const currentDir = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
             const finalUrl = `${currentDir}card.html?n=${encodeURIComponent(name)}&d=${encodeURIComponent(date)}`;
 
-            // 1. 调用内置库生成二维码矩阵
-            const qr = new QRCode(finalUrl);
-            const modules = qr.modules;
-            const tileW = 300 / modules.length;
+            // 3. 自动复制链接（作为备份）
+            const el = document.createElement('textarea');
+            el.value = finalUrl;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
 
-            const mainCanvas = document.getElementById('myCanvas');
-            const ctx = mainCanvas.getContext('2d');
-            mainCanvas.width = 600;
-            mainCanvas.height = 900;
+            // 4. 获取二维码图片并合成
+            const canvas = document.getElementById('myCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 600;
+            canvas.height = 900;
 
-            // 2. 绘制海报
-            ctx.fillStyle = "#d63031"; // 红色背景
+            // 绘制底色和边框
+            ctx.fillStyle = "#d63031";
             ctx.fillRect(0, 0, 600, 900);
-            ctx.strokeStyle = "#f1c40f"; // 金色边框
+            ctx.strokeStyle = "#f1c40f";
             ctx.lineWidth = 20;
             ctx.strokeRect(30, 30, 540, 840);
 
+            // 绘制文字
             ctx.fillStyle = "#f1c40f";
             ctx.textAlign = "center";
-            ctx.font = "bold 50px 'Microsoft YaHei'";
-            ctx.fillText("专属新春贺卡", 300, 150);
-            
+            ctx.font = "bold 50px sans-serif";
+            ctx.fillText("专属动态贺卡", 300, 150);
             ctx.fillStyle = "#ffffff";
-            ctx.font = "36px 'Microsoft YaHei'";
+            ctx.font = "34px sans-serif";
             ctx.fillText(`致：${name}`, 300, 280);
 
-            // 3. 绘制二维码 (白底)
-            ctx.fillStyle = "#ffffff";
-            ctx.fillRect(150, 350, 300, 300);
+            // 关键：通过公开接口请求二维码图片
+            const qrImg = new Image();
+            qrImg.crossOrigin = "anonymous"; // 处理跨域
+            qrImg.src = `https://api.qrserver.com{encodeURIComponent(finalUrl)}`;
+
+            qrImg.onload = function() {
+                // 画二维码白底
+                ctx.fillStyle = "#ffffff";
+                ctx.fillRect(150, 350, 300, 300);
+                // 把二维码画上去
+                ctx.drawImage(qrImg, 150, 350, 300, 300);
+                
+                ctx.fillStyle = "#f1c40f";
+                ctx.font = "24px sans-serif";
+                ctx.fillText("长按识别 · 拆开贺卡", 300, 800);
+
+                document.getElementById('canvas-container').style.display = 'block';
+                document.getElementById('statusTip').style.display = 'block';
+                window.scrollTo(0, document.body.scrollHeight);
+            };
             
-            // 循环矩阵手动画出二维码黑块
-            ctx.fillStyle = "#000000";
-            for (var row = 0; row < modules.length; row++) {
-                for (var col = 0; col < modules.length; col++) {
-                    if (modules[row][col]) {
-                        ctx.fillRect(150 + col * tileW, 350 + row * tileW, tileW + 0.5, tileW + 0.5);
-                    }
-                }
-            }
-
-            ctx.fillStyle = "#f1c40f";
-            ctx.font = "24px 'Microsoft YaHei'";
-            ctx.fillText("长按识别二维码 · 查看动态贺卡", 300, 800);
-
-            document.getElementById('canvas-container').style.display = 'block';
-            document.getElementById('statusTip').style.display = 'block';
-            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            qrImg.onerror = function() {
+                alert("二维码加载超时，请检查网络或多点几次生成。");
+            };
         }
     </script>
 </body>
