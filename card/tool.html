@@ -5,34 +5,109 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>贺卡链接生成器</title>
     <style>
-        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 50px; background: #fff5f5; }
-        .box { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
-        input { padding: 12px; width: 200px; margin: 10px; border: 2px solid #ffcfcf; border-radius: 8px; outline: none; }
-        button { padding: 12px 25px; background: #ff4757; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        #result { margin-top: 20px; word-break: break-all; color: #555; font-size: 14px; }
+        /* 水印背景层 */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; /* 放在输入框后面 */
+            pointer-events: none; /* 确保不阻碍点击输入 */
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org' width='200' height='200' viewBox='0 0 200 200'%3E%3Ctext x='50%25' y='50%25' dy='.35em' fill='rgba(200, 200, 200, 0.15)' font-size='12' font-family='sans-serif' text-anchor='middle' transform='rotate(-35, 100, 100)'%3E制作xyx@zjqc 仅供2026春节企业问候使用%3C/text%3E%3C/svg%3E");
+            background-repeat: repeat;
+        }
+
+        body { 
+            font-family: 'PingFang SC', sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background: #fffafa; 
+        }
+
+        .box { 
+            background: rgba(255, 255, 255, 0.95); 
+            padding: 30px; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+            text-align: center; 
+            width: 320px; 
+            border: 1px solid #fee;
+        }
+
+        h2 { color: #d63031; margin-bottom: 20px; font-size: 22px; }
+        .input-group { margin-bottom: 15px; text-align: left; }
+        label { font-size: 12px; color: #999; margin-left: 5px; }
+        
+        input { 
+            padding: 12px; width: 90%; margin-top: 5px; 
+            border: 2px solid #ffcfcf; border-radius: 8px; 
+            outline: none; transition: 0.3s; 
+        }
+        input:focus { border-color: #ff4757; box-shadow: 0 0 8px rgba(255,71,87,0.2); }
+        
+        button { 
+            padding: 12px; background: #ff4757; color: white; 
+            border: none; border-radius: 8px; cursor: pointer; 
+            font-weight: bold; width: 100%; margin-top: 10px; font-size: 16px; 
+        }
+        button:hover { background: #ff5e6c; }
+
+        #result { 
+            margin-top: 20px; word-break: break-all; color: #666; 
+            font-size: 13px; line-height: 1.5; background: #fdfdfd; 
+            padding: 10px; border-radius: 5px; border: 1px dashed #ddd; 
+            display: none;
+        }
+
+        .footer { margin-top: 20px; font-size: 12px; color: #ccc; }
     </style>
 </head>
 <body>
     <div class="box">
-        <h2>🧧 客户贺卡生成工具</h2>
-        <input type="text" id="custName" placeholder="客户尊称 (如: 王总)">
+        <h2>🧧 贺卡生成工具</h2>
+        <div class="input-group">
+            <label>客户姓名</label>
+            <input type="text" id="custName" placeholder="例如：张经理">
+        </div>
+        <div class="input-group">
+            <label>显示日期 (可手动修改)</label>
+            <input type="text" id="custDate" placeholder="例如：二〇二五年元宵">
+        </div>
         <button onclick="make()">生成并复制链接</button>
-        <div id="result"></div>
+        <div id="result" id="linkBox"></div>
+        <div class="footer">制作xyx@zjqc</div>
     </div>
 
     <script>
+        // 默认初始化今天日期
+        const today = new Date();
+        document.getElementById('custDate').value = `${today.getFullYear()}年${today.getMonth()+1}月${today.getDate()}日`;
+
         function make() {
             const name = document.getElementById('custName').value;
-            if(!name) return alert('请输入名字');
-            // 自动定位到当前目录下的 card.html
+            const date = document.getElementById('custDate').value;
+            
+            if(!name) return alert('请输入客户姓名');
+            
             const currentDir = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
-            const finalUrl = `${currentDir}card.html?n=${encodeURIComponent(name)}`;
+            const finalUrl = `${currentDir}card.html?n=${encodeURIComponent(name)}&d=${encodeURIComponent(date)}`;
             
-            document.getElementById('result').innerHTML = `已生成链接：<br><strong>${finalUrl}</strong>`;
+            const resDiv = document.getElementById('result');
+            resDiv.style.display = 'block';
+            resDiv.innerHTML = `<strong>链接已生成并自动复制：</strong><br>${finalUrl}`;
             
-            navigator.clipboard.writeText(finalUrl).then(() => {
-                alert('链接已复制，直接发给客户即可！');
-            });
+            // 复制逻辑
+            const el = document.createElement('textarea');
+            el.value = finalUrl;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            
+            alert('复制成功！可以发送给客户了。');
         }
     </script>
 </body>
