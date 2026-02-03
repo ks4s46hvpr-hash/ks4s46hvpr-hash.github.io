@@ -3,83 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>贺卡图片生成器</title>
+    <title>企业贺卡生成工具</title>
     <style>
-        body { font-family: 'Microsoft YaHei', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background: #f8f9fa; }
-        .box { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 320px; text-align: center; margin-bottom: 20px; }
-        h2 { color: #d63031; margin-bottom: 20px; }
-        input { padding: 12px; width: 85%; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; outline: none; }
-        button { padding: 12px; background: #27ae60; color: white; border: none; border-radius: 8px; cursor: pointer; width: 95%; margin-top: 10px; font-weight: bold; font-size: 16px; }
-        canvas { max-width: 100%; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); display: none; }
-        .tip { font-size: 13px; color: #666; margin-top: 15px; }
+        body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background: #fdf2f2; }
+        .box { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); width: 340px; text-align: center; margin-bottom: 20px; position: relative; }
+        h2 { color: #c0392b; margin-top: 0; font-size: 22px; letter-spacing: 1px; }
+        .input-group { margin: 20px 0; }
+        input { padding: 14px; width: 85%; border: 2px solid #f5c6c6; border-radius: 10px; outline: none; font-size: 16px; transition: 0.3s; }
+        input:focus { border-color: #e74c3c; box-shadow: 0 0 8px rgba(231,76,60,0.2); }
+        button { padding: 14px; background: #e74c3c; color: white; border: none; border-radius: 10px; cursor: pointer; width: 95%; font-weight: bold; font-size: 16px; transition: 0.2s; }
+        button:active { transform: scale(0.98); background: #c0392b; }
+        
+        #previewCanvas { max-width: 100%; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); display: none; margin-top: 20px; }
+        
+        .copyright { margin-top: 25px; font-size: 11px; color: #999; letter-spacing: 0.5px; }
+        .tip { font-size: 13px; color: #e67e22; margin-top: 15px; font-weight: 500; }
     </style>
 </head>
 <body>
     <div class="box">
-        <h2>🧧 贺卡生成工具</h2>
-        <input type="text" id="custName" placeholder="输入客户姓名">
-        <input type="text" id="custDate" placeholder="显示日期 (可选)">
-        <button onclick="generateCard()">生成并下载贺卡图片</button>
-        <p class="tip">填写信息后点击生成，图片将自动保存</p>
+        <h2>🧧 企业贺卡制作工具</h2>
+        <div class="input-group">
+            <input type="text" id="custName" placeholder="请输入客户姓名 (如: 王总)">
+        </div>
+        <button onclick="generateAndDownload()">生成并保存贺卡图片</button>
+        <p id="statusTip" class="tip" style="display:none;">✅ 生成成功！图片已自动下载</p>
+        
+        <!-- 底部版权声明 -->
+        <div class="copyright">xyx@zjqc制作，仅供2026春节企业问候使用</div>
     </div>
 
-    <!-- 预览区域 -->
-    <canvas id="cardCanvas"></canvas>
+    <!-- 隐藏的画布，用于合成图片 -->
+    <canvas id="previewCanvas"></canvas>
 
     <script>
-        // 1. 设置默认日期
-        const today = new Date();
-        document.getElementById('custDate').value = `${today.getFullYear()}年${today.getMonth()+1}月`;
-
-        async function generateCard() {
+        async function generateAndDownload() {
             const name = document.getElementById('custName').value;
-            const date = document.getElementById('custDate').value;
-            if(!name) return alert('请输入客户姓名');
+            if(!name) return alert('请先输入客户姓名');
 
-            const canvas = document.getElementById('cardCanvas');
+            const canvas = document.getElementById('previewCanvas');
             const ctx = canvas.getContext('2d');
             
-            // 2. 加载你上传的 bg.jpg
+            // 加载底图
             const img = new Image();
-            img.crossOrigin = "anonymous"; // 解决跨域问题
-            img.src = "bg.jpg"; // 确保你在同一个文件夹下上传了 bg.jpg
+            img.crossOrigin = "anonymous"; 
+            // 路径指向你上传到仓库里的 bg.jpg
+            img.src = "bg.jpg"; 
 
             img.onload = function() {
-                // 3. 根据图片原始大小设置画布
+                // 1. 设置画布大小与原图一致
                 canvas.width = img.width;
                 canvas.height = img.height;
                 
-                // 4. 绘制背景图
+                // 2. 绘制底图
                 ctx.drawImage(img, 0, 0);
 
-                // 5. 绘制文字 (这里你可以根据你的设计稿微调坐标和颜色)
-                // 名字样式
-                ctx.fillStyle = "#d4af37"; // 金色文字，可根据设计稿改为 #ffffff 等
-                ctx.font = `bold ${canvas.width * 0.06}px sans-serif`; // 根据宽度自动缩放字号
+                // 3. 配置文字样式
+                // 字号根据图片宽度动态调整 (宽度 10%)
+                const fontSize = Math.floor(canvas.width * 0.08); 
+                ctx.fillStyle = "#D4AF37"; // 默认金色，可根据需要改为 #FFFFFF (白色)
+                ctx.font = `bold ${fontSize}px "Microsoft YaHei", sans-serif`;
                 ctx.textAlign = "center";
-                
-                // 核心：名字画在图片高度 40% 的位置 (你可以修改 0.4 这个系数)
-                ctx.fillText(name, canvas.width / 2, canvas.height * 0.4);
+                ctx.textBaseline = "middle";
 
-                // 日期样式 (可选)
-                if(date) {
-                    ctx.fillStyle = "rgba(255,255,255,0.8)";
-                    ctx.font = `${canvas.width * 0.03}px sans-serif`;
-                    ctx.fillText(date, canvas.width / 2, canvas.height * 0.9); // 日期画在底部 90% 处
-                }
+                // 4. 写入姓名 (核心：修改坐标对齐空白处)
+                // 这里的 0.45 代表在图片高度 45% 的位置，你可以根据设计稿微调
+                const textY = canvas.height * 0.45; 
+                ctx.fillText(name, canvas.width / 2, textY);
 
-                // 6. 展示并触发下载
+                // 5. 显示并触发保存
                 canvas.style.display = "block";
-                const dataURL = canvas.toDataURL('image/jpeg', 0.9); // 高质量输出
-                
+                document.getElementById('statusTip').style.display = "block";
+
+                // 导出图片
+                const dataURL = canvas.toDataURL('image/jpeg', 0.95);
                 const link = document.createElement('a');
-                link.download = `${name}的专属贺卡.jpg`;
+                link.download = `贺卡_${name}_2026.jpg`;
                 link.href = dataURL;
                 link.click();
             };
 
             img.onerror = function() {
-                alert("未找到背景图 bg.jpg，请先将设计好的 bg.jpg 上传到 GitHub 的 card 文件夹中！");
+                alert("错误：在当前目录下未找到 bg.jpg。请确认已将设计好的底图上传至 GitHub 仓库的 card 文件夹中。");
             };
         }
     </script>
