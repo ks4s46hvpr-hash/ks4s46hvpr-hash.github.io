@@ -3,98 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>贺卡生成器 - 带引导图版</title>
-    <!-- 引入二维码生成库 -->
-    <script src="https://cdnjs.cloudflare.com"></script>
+    <title>贺卡生成器 - 稳定版</title>
+    <!-- 使用更稳定的 CDN 或直接内置 -->
+    <script src="https://cdn.jsdelivr.net"></script>
     <style>
-        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background: #f4f4f4; }
-        .box { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 340px; text-align: center; }
-        input { padding: 10px; width: 80%; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; }
-        button { padding: 12px; background: #e74c3c; color: white; border: none; border-radius: 6px; cursor: pointer; width: 85%; margin-top: 10px; font-weight: bold; }
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background: #fff5f5; }
+        .box { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); width: 320px; text-align: center; border: 1px solid #ffcfcf; }
+        h2 { color: #d63031; }
+        input { padding: 12px; width: 85%; margin: 10px 0; border: 2px solid #ffcfcf; border-radius: 8px; outline: none; }
+        button { padding: 12px; background: #ff4757; color: white; border: none; border-radius: 8px; cursor: pointer; width: 95%; margin-top: 10px; font-weight: bold; font-size: 16px; }
         #canvas-container { margin-top: 20px; display: none; }
-        canvas { max-width: 100%; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .tip { font-size: 12px; color: #666; margin-top: 10px; }
-        /* 隐藏原始二维码容器 */
-        #qrcode-hidden { display: none; }
+        canvas { max-width: 100%; border-radius: 10px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); border: 2px solid #fff; }
+        .tip { font-size: 13px; color: #ff7675; margin-top: 12px; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="box">
-        <h2>🧧 贺卡分发系统</h2>
-        <input type="text" id="custName" placeholder="客户尊称">
+        <h2>🧧 贺卡生成工具</h2>
+        <input type="text" id="custName" placeholder="客户尊称 (如: 王总)">
         <input type="text" id="custDate" placeholder="日期 (如: 2025年2月)">
-        <button onclick="generatePoster()">1. 生成二维码引导图</button>
-        <p class="tip">生成后，长按/右键保存下方图片发给客户</p>
+        <button onclick="generatePoster()">生成二维码引导图</button>
+        <p id="statusTip" class="tip" style="display:none;">↓ 长按上方图片保存发送给客户</p>
     </div>
 
-    <!-- 隐藏的二维码生成位 -->
-    <div id="qrcode-hidden"></div>
-
-    <!-- 展示给客服看的合成图 -->
     <div id="canvas-container">
         <canvas id="myCanvas"></canvas>
     </div>
 
+    <!-- 隐藏的二维码处理位 -->
+    <canvas id="qr-hidden" style="display:none;"></canvas>
+
     <script>
-        // 初始日期
+        // 初始化日期
         const today = new Date();
         document.getElementById('custDate').value = `${today.getFullYear()}年${today.getMonth()+1}月`;
 
         function generatePoster() {
             const name = document.getElementById('custName').value;
             const date = document.getElementById('custDate').value;
-            if(!name) return alert('请输入名字');
+            if(!name) return alert('请输入客户姓名');
 
-            // 1. 生成最终的 H5 链接
+            // 1. 生成最终 H5 链接
             const currentDir = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
             const finalUrl = `${currentDir}card.html?n=${encodeURIComponent(name)}&d=${encodeURIComponent(date)}`;
 
-            // 2. 在内存中生成二维码
-            const qrcodeDiv = document.getElementById("qrcode-hidden");
-            qrcodeDiv.innerHTML = ""; // 清空
-            new QRCode(qrcodeDiv, {
-                text: finalUrl,
-                width: 200,
-                height: 200,
-                colorDark : "#000000",
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.H
-            });
+            try {
+                // 2. 使用 QRious 生成二维码到隐藏 Canvas
+                const qr = new QRious({
+                    element: document.getElementById('qr-hidden'),
+                    value: finalUrl,
+                    size: 300,
+                    level: 'H'
+                });
 
-            // 3. 使用 Canvas 合成图片
-            setTimeout(() => {
-                const canvas = document.getElementById('myCanvas');
-                const ctx = canvas.getContext('2d');
-                const qrImg = qrcodeDiv.getElementsByTagName('img')[0];
+                // 3. 合成海报
+                const mainCanvas = document.getElementById('myCanvas');
+                const ctx = mainCanvas.getContext('2d');
+                const qrCanvas = document.getElementById('qr-hidden');
 
-                // 设置画布尺寸 (例如 600x900)
-                canvas.width = 600;
-                canvas.height = 900;
+                mainCanvas.width = 600;
+                mainCanvas.height = 900;
 
-                // 绘制红色背景/封面
-                ctx.fillStyle = "#d63031";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                // 绘制背景
+                ctx.fillStyle = "#d63031"; // 这里后续可以换成 ctx.drawImage 绘制你设计的 cover.jpg
+                ctx.fillRect(0, 0, 600, 900);
 
-                // 绘制装饰性文字
+                // 绘制装饰框
+                ctx.strokeStyle = "#f1c40f";
+                ctx.lineWidth = 10;
+                ctx.strokeRect(20, 20, 560, 860);
+
+                // 绘制文字
                 ctx.fillStyle = "#f1c40f";
-                ctx.font = "bold 40px Microsoft YaHei";
                 ctx.textAlign = "center";
-                ctx.fillText("专属新春贺卡", canvas.width/2, 150);
+                ctx.font = "bold 45px Microsoft YaHei";
+                ctx.fillText("专属新春贺卡", 300, 150);
                 
                 ctx.fillStyle = "#ffffff";
-                ctx.font = "30px Microsoft YaHei";
-                ctx.fillText(`致：${name}`, canvas.width/2, 250);
+                ctx.font = "32px Microsoft YaHei";
+                ctx.fillText(`致：${name}`, 300, 280);
 
-                // 绘制提示语
-                ctx.font = "20px Microsoft YaHei";
-                ctx.fillText("长按识别二维码查看完整动态贺卡", canvas.width/2, 820);
+                // 绘制二维码白底
+                ctx.fillStyle = "#ffffff";
+                ctx.fillRect(140, 340, 320, 320);
 
-                // 把二维码画上去 (居中)
-                ctx.drawImage(qrImg, 150, 350, 300, 300);
+                // 把二维码画上去
+                ctx.drawImage(qrCanvas, 150, 350, 300, 300);
+
+                // 绘制底部说明
+                ctx.fillStyle = "#f1c40f";
+                ctx.font = "24px Microsoft YaHei";
+                ctx.fillText("长按识别二维码 · 查看动态贺卡", 300, 800);
 
                 document.getElementById('canvas-container').style.display = 'block';
-                alert('引导图已生成，请长按保存图片');
-            }, 300);
+                document.getElementById('statusTip').style.display = 'block';
+                
+                // 自动跳转到图片位置方便操作
+                mainCanvas.scrollIntoView({behavior: "smooth"});
+
+            } catch (e) {
+                console.error(e);
+                alert("二维码生成失败，请刷新页面重试");
+            }
         }
     </script>
 </body>
