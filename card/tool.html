@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>贺卡链接生成器</title>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 50px; background: #fff5f5; }
+        .box { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
+        input { padding: 12px; width: 200px; margin: 10px; border: 2px solid #ffcfcf; border-radius: 8px; outline: none; }
+        button { padding: 12px 25px; background: #ff4757; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        #result { margin-top: 20px; word-break: break-all; color: #555; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>🧧 客户贺卡生成工具</h2>
+        <input type="text" id="custName" placeholder="客户尊称 (如: 王总)">
+        <button onclick="make()">生成并复制链接</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function make() {
+            const name = document.getElementById('custName').value;
+            if(!name) return alert('请输入名字');
+            // 自动定位到当前目录下的 card.html
+            const currentDir = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+            const finalUrl = `${currentDir}card.html?n=${encodeURIComponent(name)}`;
+            
+            document.getElementById('result').innerHTML = `已生成链接：<br><strong>${finalUrl}</strong>`;
+            
+            navigator.clipboard.writeText(finalUrl).then(() => {
+                alert('链接已复制，直接发给客户即可！');
+            });
+        }
+    </script>
+</body>
+</html>
