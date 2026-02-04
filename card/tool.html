@@ -24,7 +24,7 @@
     <div class="box">
         <h2>🧧 企业贺卡制作工具</h2>
         <div class="input-group">
-            <input type="text" id="custName" placeholder="请输入客户姓名 (如: 王总)">
+            <input type="text" id="custName" placeholder="请输入客户企业名">
         </div>
         <button onclick="generateAndDownload()">生成并保存贺卡图片</button>
         <p id="statusTip" class="tip" style="display:none;">✅ 生成成功！图片已自动下载</p>
@@ -39,7 +39,7 @@
     <script>
         async function generateAndDownload() {
             const name = document.getElementById('custName').value;
-            if(!name) return alert('请先输入客户姓名');
+            if(!name) return alert('请先输入客户企业名');
 
             const canvas = document.getElementById('previewCanvas');
             const ctx = canvas.getContext('2d');
@@ -60,11 +60,21 @@
 
                 // 3. 配置文字样式
                 // 字号根据图片宽度动态调整 (宽度 10%)
-                const fontSize = Math.floor(canvas.width * 0.08); 
-                ctx.fillStyle = "#D4AF37"; // 默认金色，可根据需要改为 #FFFFFF (白色)
-                ctx.font = `bold ${fontSize}px "Microsoft YaHei", sans-serif`;
-                ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
+                // 核心：竖排文字逻辑
+const fontSize = canvas.width * 0.05; // 基础字号
+ctx.fillStyle = "#D4AF37"; 
+ctx.font = `bold ${fontSize}px "STKaiti", "KaiTi", serif`; // 优先使用楷体
+ctx.textAlign = "center";
+
+const chars = name.split(''); // 将长名称拆分为单个字符
+const x = canvas.width * 0.85; // 放在右侧 85% 的位置
+const startY = canvas.height * 0.2; // 从上方 20% 处开始写
+const lineSpacing = fontSize * 1.2; // 行间距
+
+chars.forEach((char, index) => {
+    // 如果名字超长（比如超过12字），可以增加逻辑开启第二列
+    ctx.fillText(char, x, startY + (index * lineSpacing));
+});
 
                 // 4. 写入姓名 (核心：修改坐标对齐空白处)
                 // 这里的 0.45 代表在图片高度 45% 的位置，你可以根据设计稿微调
