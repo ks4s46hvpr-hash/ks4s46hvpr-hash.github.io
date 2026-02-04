@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>贺卡位置探测工具</title>
+    <style>
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background: #f0f0f0; }
+        .box { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 340px; text-align: center; margin-bottom: 20px; }
+        input { padding: 10px; width: 80%; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; }
+        button { padding: 12px; background: #e74c3c; color: white; border: none; border-radius: 6px; cursor: pointer; width: 90%; font-weight: bold; }
+        #previewCanvas { max-width: 95%; border: 2px dashed #999; cursor: crosshair; margin-top: 20px; }
+        .info-panel { margin-top: 15px; padding: 10px; background: #fff3cd; border: 1px solid #ffeeba; border-radius: 5px; font-size: 13px; line-height: 1.6; width: 340px; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>🛠 坐标探测生成器</h2>
+        <input type="text" id="custName" placeholder="随便输个名字测试位置">
+        <button onclick="generate()">第一步：点击生成预览</button>
+        <div class="info-panel" id="resultPanel">
+            <strong>操作指南：</strong><br>
+            1. 点击生成预览图<br>
+            2. <strong>直接在下方图片上点击</strong>你想让“致”字开始的位置<br>
+            3. 弹窗会给出对应的代码系数
+        </div>
+    </div>
+
+    <canvas id="previewCanvas"></canvas>
+
+    <script>
+        async function generate() {
+            let name = document.getElementById('custName').value || "测试企业名称";
+            const canvas = document.getElementById('previewCanvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.src = "bg.jpg?t=" + new Date().getTime(); // 加个时间戳防止缓存旧图
+
+            img.onload = function() {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+
+                // 默认绘制一次（初始位置）
+                drawText(ctx, canvas, name, 0.85, 0.15);
+                
+                // 绑定点击探测事件
+                canvas.onclick = function(e) {
+                    const rect = canvas.getBoundingClientRect();
+                    const scaleX = canvas.width / rect.width;
+                    const scaleY = canvas.height / rect.height;
+                    const clickX = (e.clientX - rect.left) * scaleX;
+                    const clickY = (e.clientY - rect.top) * scaleY;
+
+                    // 计算比例系数
+                    const ratioX = (clickX / canvas.width).toFixed(3);
+                    const ratioY = (clickY / canvas.height).toFixed(3);
+
+                    // 弹窗告知并实时重绘测试
+                    const msg = `探测成功！\n横向比例 (startX): ${ratioX}\n纵向比例 (startY): ${ratioY}\n\n请记录这两个数字，填入代码中即可。`;
+                    alert(msg);
+                    
+                    // 重新绘制底图和新位置的文字
+                    ctx.drawImage(img, 0, 0);
+                    drawText(ctx, canvas, name, ratioX, ratioY);
+                };
+            };
+            img.onerror = () => alert("未找到 bg.jpg，请确保图片已上传到 card 文件夹。");
+        }
+
+        function drawText(ctx, canvas, name, rX, rY) {
+            const fontSize = Math.floor(canvas.width * 0.05);
+            ctx.fillStyle = "#D4AF37"; 
+            ctx.font = `bold ${fontSize}px "STKaiti", "KaiTi", serif`;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "top";
+
+            let startX = canvas.width * rX; 
+            let startY = canvas.height * rY;
+            
+            // 画“致”
+            ctx.font = `bold ${fontSize * 0.7}px "STKaiti", "KaiTi", serif`;
+            ctx.fillText("致", startX, startY);
+            
+            // 画名字
+            ctx.font = `bold ${fontSize}px "STKaiti", "KaiTi", serif`;
+            const chars = name.split('');
+            let curY = startY + fontSize * 1.0; 
+            chars.forEach(char => {
+                ctx.fillText(char, startX, curY);
+                curY += fontSize * 1.2;
+            });
+        }
+    </script>
+</body>
+</html>
