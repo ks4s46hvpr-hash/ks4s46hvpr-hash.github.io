@@ -3,16 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026马年贺卡生成工具-全平台适配版</title>
-    <!-- 引入国内加速的开源隶书字体 -->
-    <link href="https://fonts.googleapis.com" rel="stylesheet">
+    <title>企业贺卡制作工具 - 客服电脑专用版</title>
     <style>
-        body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background: rgb(216, 187, 165); }
+        body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background: rgb(216, 187, 165); }
         .box { background: rgba(255,255,255,0.95); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 340px; text-align: center; }
         h2 { color: rgb(33, 44, 53); margin-top: 0; font-size: 20px; }
-        /* 字体加载提示 */
-        #statusTip { font-size: 12px; color: #e67e22; margin-top: 10px; font-weight: bold; }
-        input { padding: 14px; width: 85%; border: 1px solid #ccc; border-radius: 10px; outline: none; font-size: 16px; margin: 15px 0; }
+        input { padding: 14px; width: 85%; border: 1px solid #ccc; border-radius: 10px; outline: none; font-size: 18px; margin: 15px 0; font-weight: bold; text-align: center; }
         button { padding: 14px; background: rgb(33, 44, 53); color: white; border: none; border-radius: 10px; cursor: pointer; width: 95%; font-weight: bold; font-size: 16px; }
         canvas { max-width: 100%; border-radius: 5px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); display: none; margin-top: 20px; }
         .copyright { margin-top: 25px; font-size: 11px; color: #666; }
@@ -21,21 +17,17 @@
 <body>
     <div class="box">
         <h2>🧧 2026 丙午马年贺卡制作</h2>
-        <input type="text" id="custName" placeholder="请输入客户名称">
-        <button onclick="generate()">生成高清马年贺卡</button>
-        <p id="statusTip" style="display:none;">✅ 处理完成</p>
+        <input type="text" id="custName" placeholder="输入客户姓名">
+        <button onclick="generate()">生成高清贺卡图片</button>
         <div class="copyright">制作xyx@zjqc，仅供2026马年问候使用</div>
     </div>
-    <canvas id="previewCanvas" onclick="downloadImg()"></canvas>
+    <canvas id="previewCanvas"></canvas>
 
     <script>
         async function generate() {
             let nameInput = document.getElementById('custName').value.trim();
-            let safeName = nameInput.replace(/[\\/:*?"<>|：]/g, '');
-            if(!safeName) return alert('请输入名称');
-
-            // 关键：确保字体加载完成后再绘图
-            await document.fonts.load('12px "ZCOOL XiaoWei"');
+            let name = nameInput.replace(/[\\/:*?"<>|：]/g, '');
+            if(!name) return alert('请输入名称');
 
             const canvas = document.getElementById('previewCanvas');
             const ctx = canvas.getContext('2d');
@@ -49,66 +41,57 @@
                 ctx.drawImage(img, 0, 0);
 
                 const fontSize = 42; 
-                const originalStartY = (canvas.height * 0.076) - 6; 
+                const startX = (canvas.width * 0.854) + 45; // 已应用您的 +45 右躲
+                const startY = (canvas.height * 0.076) - 6; // 已应用您的 -6 纵移
                 const bottomLimit = canvas.height * 0.464; 
-                const chars = safeName.split('');
                 
-                let startX = (canvas.width * 0.854) + 21; 
-                if (chars.length > 9) { startX += 45; }
+                // 玄青色 + 透明度
+                ctx.fillStyle = "rgba(159, 71, 44, 0.85)"; 
+                ctx.textAlign = "center";
+                ctx.textBaseline = "top";
 
-                const lineSpacing = fontSize * 1.15; 
-                const columnSpacing = fontSize * 1.4; 
-                const zhiToNameGap = 65; 
+                // 字体堆栈：优先 Windows 隶书, Mac 报隶书
+                const fontStack = `bold ${fontSize}px "LiSu", "Baoli SC", "隶书", serif`;
+                const zhiFont = `bold 34px "LiSu", "Baoli SC", "隶书", serif`;
 
-                let curX = startX, curY = originalStartY + zhiToNameGap, columnsX = [startX]; 
+                // 绘制“致” (动态居中逻辑已整合)
+                const chars = name.split('');
+                const lineSpacing = fontSize * 1.15;
+                const columnSpacing = fontSize * 1.4;
+                const zhiToNameGap = 65;
+
+                let curX = startX, curY = startY + zhiToNameGap, colsX = [startX];
                 chars.forEach((char) => {
                     if (curY + lineSpacing > bottomLimit) {
-                        curX -= columnSpacing;
-                        curY = originalStartY + zhiToNameGap;
-                        if(!columnsX.includes(curX)) columnsX.push(curX);
+                        curX -= columnSpacing; curY = startY + zhiToNameGap;
+                        if(!colsX.includes(curX)) colsX.push(curX);
                     }
                     curY += lineSpacing;
                 });
-                const centerX = (Math.min(...columnsX) + Math.max(...columnsX)) / 2;
+                const centerX = (Math.min(...colsX) + Math.max(...colsX)) / 2;
 
-                // 核心：强制调用下载的 ZCOOL XiaoWei 字体
-                const drawText = (text, x, y, font) => {
-                    ctx.font = font;
-                    ctx.textAlign = "center";
-                    ctx.textBaseline = "top";
-                    ctx.fillStyle = "rgba(33, 44, 53, 0.92)"; 
-                    ctx.fillText(text, x, y);
-                };
+                ctx.font = zhiFont;
+                ctx.fillText("致", centerX, startY);
 
-                const fontName = '"ZCOOL XiaoWei", "LiSu", "Baoli SC", serif';
-
-                drawText("致", centerX, originalStartY, `bold 34px ${fontName}`);
-
-                curX = startX; 
-                curY = originalStartY + zhiToNameGap;
+                // 绘制名字
+                ctx.font = fontStack;
+                curX = startX; curY = startY + zhiToNameGap;
                 chars.forEach((char) => {
                     if (curY + lineSpacing > bottomLimit) {
-                        curX -= columnSpacing; 
-                        curY = originalStartY + zhiToNameGap;
+                        curX -= columnSpacing; curY = startY + zhiToNameGap;
                     }
-                    drawText(char, curX, curY, `bold ${fontSize}px ${fontName}`);
+                    ctx.fillText(char, curX, curY);
                     curY += lineSpacing;
                 });
 
                 canvas.style.display = "block";
-                document.getElementById('statusTip').style.display = "block";
-                canvas.setAttribute('data-name', safeName);
-                setTimeout(downloadImg, 300);
+                setTimeout(() => {
+                    const link = document.createElement('a');
+                    link.download = `2026马年贺卡_${name}.jpg`;
+                    link.href = canvas.toDataURL('image/jpeg', 0.95);
+                    link.click();
+                }, 300);
             };
-        }
-
-        function downloadImg() {
-            const canvas = document.getElementById('previewCanvas');
-            const safeName = canvas.getAttribute('data-name') || "贺卡";
-            const link = document.createElement('a');
-            link.download = `2026马年贺卡_${safeName}.jpg`;
-            link.href = canvas.toDataURL('image/jpeg', 0.95);
-            link.click();
         }
     </script>
 </body>
