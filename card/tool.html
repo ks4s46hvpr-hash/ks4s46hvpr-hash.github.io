@@ -3,38 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026马年贺卡生成工具-xyx@zjqc</title>
+    <title>2026马年贺卡生成工具-全平台适配版</title>
+    <!-- 引入国内加速的开源隶书字体 -->
+    <link href="https://fonts.googleapis.com" rel="stylesheet">
     <style>
-        body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background: rgb(216, 187, 165); }
+        body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background: rgb(216, 187, 165); }
         .box { background: rgba(255,255,255,0.95); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 340px; text-align: center; }
         h2 { color: rgb(33, 44, 53); margin-top: 0; font-size: 20px; }
+        /* 字体加载提示 */
+        #statusTip { font-size: 12px; color: #e67e22; margin-top: 10px; font-weight: bold; }
         input { padding: 14px; width: 85%; border: 1px solid #ccc; border-radius: 10px; outline: none; font-size: 16px; margin: 15px 0; }
         button { padding: 14px; background: rgb(33, 44, 53); color: white; border: none; border-radius: 10px; cursor: pointer; width: 95%; font-weight: bold; font-size: 16px; }
-        button:active { transform: scale(0.98); }
-        canvas { max-width: 100%; border-radius: 5px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); display: none; margin-top: 20px; cursor: pointer; }
+        canvas { max-width: 100%; border-radius: 5px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); display: none; margin-top: 20px; }
         .copyright { margin-top: 25px; font-size: 11px; color: #666; }
     </style>
 </head>
 <body>
     <div class="box">
-        <h2>🧧 2026丙午马年贺卡制作</h2>
-        <input type="text" id="custName" placeholder="请输入客户企业名称">
-        <button onclick="generate()">生成贺卡</button>
-        <div class="copyright">制作xyx@zjqc</div>
+        <h2>🧧 2026 丙午马年贺卡制作</h2>
+        <input type="text" id="custName" placeholder="请输入客户名称">
+        <button onclick="generate()">生成高清马年贺卡</button>
+        <p id="statusTip" style="display:none;">✅ 处理完成</p>
+        <div class="copyright">制作xyx@zjqc，仅供2026马年问候使用</div>
     </div>
     <canvas id="previewCanvas" onclick="downloadImg()"></canvas>
 
     <script>
         async function generate() {
-            const nameInput = document.getElementById('custName').value.trim();
-            const safeName = nameInput.replace(/[\\/:*?"<>|：]/g, '');
+            let nameInput = document.getElementById('custName').value.trim();
+            let safeName = nameInput.replace(/[\\/:*?"<>|：]/g, '');
             if(!safeName) return alert('请输入名称');
+
+            // 关键：确保字体加载完成后再绘图
+            await document.fonts.load('12px "ZCOOL XiaoWei"');
 
             const canvas = document.getElementById('previewCanvas');
             const ctx = canvas.getContext('2d');
             const img = new Image();
             img.crossOrigin = "anonymous";
-            // 自动清理缓存
             img.src = "bg.jpg?t=" + new Date().getTime();
 
             img.onload = function() {
@@ -42,7 +48,6 @@
                 canvas.height = img.height;
                 ctx.drawImage(img, 0, 0);
 
-                // --- 1. 参数设定 ---
                 const fontSize = 42; 
                 const originalStartY = (canvas.height * 0.076) - 6; 
                 const bottomLimit = canvas.height * 0.464; 
@@ -55,7 +60,6 @@
                 const columnSpacing = fontSize * 1.4; 
                 const zhiToNameGap = 65; 
 
-                // --- 2. 预计算排版 ---
                 let curX = startX, curY = originalStartY + zhiToNameGap, columnsX = [startX]; 
                 chars.forEach((char) => {
                     if (curY + lineSpacing > bottomLimit) {
@@ -67,66 +71,35 @@
                 });
                 const centerX = (Math.min(...columnsX) + Math.max(...columnsX)) / 2;
 
-                // --- 3. 绘制函数 ---
+                // 核心：强制调用下载的 ZCOOL XiaoWei 字体
                 const drawText = (text, x, y, font) => {
                     ctx.font = font;
                     ctx.textAlign = "center";
                     ctx.textBaseline = "top";
-                    // 玄青色
                     ctx.fillStyle = "rgba(33, 44, 53, 0.92)"; 
                     ctx.fillText(text, x, y);
                 };
 
-                // 绘制“致”
-                drawText("致", centerX, originalStartY, `bold 34px "LiSu", "Baoli SC", "楷体", serif`);
+                const fontName = '"ZCOOL XiaoWei", "LiSu", "Baoli SC", serif';
 
-                // 绘制名字
-                curX = startX; curY = originalStartY + zhiToNameGap;
+                drawText("致", centerX, originalStartY, `bold 34px ${fontName}`);
+
+                curX = startX; 
+                curY = originalStartY + zhiToNameGap;
                 chars.forEach((char) => {
                     if (curY + lineSpacing > bottomLimit) {
                         curX -= columnSpacing; 
                         curY = originalStartY + zhiToNameGap;
                     }
-                    drawText(char, curX, curY, `bold ${fontSize}px "LiSu", "Baoli SC", "楷体", serif`);
+                    drawText(char, curX, curY, `bold ${fontSize}px ${fontName}`);
                     curY += lineSpacing;
                 });
 
-                // --- 4. 绘制马年斑驳印章 ---
-                const sealSize = fontSize * 1.1; 
-                const sealX = curX - sealSize/2;
-                const sealY = curY + 15;
-
-                ctx.save();
-                // 绘制朱砂底色
-                ctx.fillStyle = "rgba(171, 49, 33, 0.85)";
-                ctx.fillRect(sealX, sealY, sealSize, sealSize);
-
-                // 斑驳效果
-                ctx.fillStyle = "rgb(216, 187, 165)"; 
-                for (let i = 0; i < 50; i++) {
-                    const rx = sealX + Math.random() * sealSize;
-                    const ry = sealY + Math.random() * sealSize;
-                    ctx.beginPath();
-                    ctx.arc(rx, ry, Math.random() * 2, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-
-                // 龙马精神
-                ctx.fillStyle = "rgba(216, 187, 165, 0.95)"; 
-                ctx.font = `bold ${sealSize * 0.38}px "LiSu", "Baoli SC", serif`;
-                ctx.textAlign = "center"; ctx.textBaseline = "middle";
-                const s = sealSize;
-                ctx.fillText("龙", sealX + s*0.75, sealY + s*0.3);
-                ctx.fillText("马", sealX + s*0.25, sealY + s*0.3);
-                ctx.fillText("精", sealX + s*0.75, sealY + s*0.75);
-                ctx.fillText("神", sealX + s*0.25, sealY + s*0.75);
-                ctx.restore();
-
                 canvas.style.display = "block";
+                document.getElementById('statusTip').style.display = "block";
                 canvas.setAttribute('data-name', safeName);
                 setTimeout(downloadImg, 300);
             };
-            img.onerror = () => alert("错误：请确保文件夹内有名为 bg.jpg 的底图！");
         }
 
         function downloadImg() {
