@@ -4,21 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2026马年贺卡</title>
+    <!-- 强制请求简体中文字符集，防止回退到繁体 -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com">
     <style>
-        body { font-family: 'Source Han Sans CN', 'Noto Sans SC', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background: #f0ebe5; }
+        body { font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background: #f0ebe5; }
         .box { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 380px; text-align: center; }
         h2 { color: #b10405; margin-top: 0; font-size: 22px; }
         input { padding: 12px; width: 85%; border: 1.5px solid #ddd; border-radius: 8px; margin: 15px 0; font-size: 16px; text-align: center; font-weight: bold; outline: none; }
         input:focus { border-color: #b10405; }
         button { padding: 14px 25px; background: #b10405; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 95%; font-size: 16px; }
         button:hover { background: #d40506; }
-        .preview-label { margin-top: 20px; font-size: 13px; color: #999; font-weight: bold; }
+        .status { font-size: 12px; color: #888; margin-bottom: 10px; }
+        .preview-label { margin-top: 10px; font-size: 13px; color: #999; font-weight: bold; }
         canvas { max-width: 100%; margin-top: 10px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); background: #eee; }
     </style>
 </head>
 <body>
     <div class="box">
         <h2>🧧 2026 贺卡制作</h2>
+        <div id="fontStatus" class="status">正在准备高清简体字库...</div>
         <input type="text" id="custName" placeholder="输入企业名称" oninput="drawPreview()">
         <button onclick="generate()">生成并下载</button>
         <div class="preview-label">实时预览</div>
@@ -32,15 +36,25 @@
         img.crossOrigin = "anonymous";
         img.src = "bg.png"; 
 
+        // 检测 Windows 系统
+        const isWindows = navigator.platform.toLowerCase().includes('win');
+
         const CONFIG = {
             fontSize: 27,
-            color: "#b10405", // 更新为指定红色
+            color: "#b10405",
             startX_ratio: 0.600,
             startY_ratio: 0.369,
             endX_ratio: 0.844,
             maxLineChars: 15,
-            strokeWeight: 0.2// 额外加粗厚度
+            // Windows 使用 0.2，其他（Mac等）使用 0.4
+            strokeWeight: isWindows ? 0.2 : 0.4 
         };
+
+        // 字体加载处理
+        document.fonts.ready.then(() => {
+            document.getElementById('fontStatus').innerText = `✅ 简体字库就绪 (${isWindows ? 'Win模式' : '标准模式'})`;
+            if(img.complete) drawPreview();
+        });
 
         img.onload = () => drawPreview();
 
@@ -56,13 +70,12 @@
             const fullText = `致${name}：`;
             const lineHeight = CONFIG.fontSize * 1.4;
             
-            // 坐标微调：左移半个字，上移一行
             const startX = (targetCanvas.width * CONFIG.startX_ratio) - (CONFIG.fontSize * 0.5);
             const startY = (targetCanvas.height * CONFIG.startY_ratio) - lineHeight;
             const endXLimit = targetCanvas.width * CONFIG.endX_ratio;
 
-            // 字体加粗增强
-            tCtx.font = `900 ${CONFIG.fontSize}px "Source Han Sans CN", "Noto Sans SC", "Microsoft YaHei", sans-serif`;
+            // 字体加粗增强：优先使用 Noto Sans SC
+            tCtx.font = `900 ${CONFIG.fontSize}px "Noto Sans SC", "Source Han Sans CN", "Microsoft YaHei", sans-serif`;
             tCtx.fillStyle = CONFIG.color;
             tCtx.strokeStyle = CONFIG.color; 
             tCtx.lineWidth = CONFIG.strokeWeight; 
@@ -85,7 +98,9 @@
                 }
 
                 tCtx.fillText(char, curX, curY);
-                tCtx.strokeText(char, curX, curY); 
+                if (CONFIG.strokeWeight > 0) {
+                    tCtx.strokeText(char, curX, curY); 
+                }
                 curX += charWidth + 2;
             }
         }
