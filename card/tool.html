@@ -39,7 +39,7 @@
             startY_ratio: 0.369,
             endX_ratio: 0.844,
             maxLineChars: 15,
-            strokeWeight: 0.8 // 额外加粗厚度
+            strokeWeight: 0.5// 额外加粗厚度
         };
 
         img.onload = () => drawPreview();
@@ -62,7 +62,7 @@
             const endXLimit = targetCanvas.width * CONFIG.endX_ratio;
 
             // 字体加粗增强
-            tCtx.font = `505 ${CONFIG.fontSize}px "Source Han Sans CN", "Noto Sans SC", "Microsoft YaHei", sans-serif`;
+            tCtx.font = `900 ${CONFIG.fontSize}px "Source Han Sans CN", "Noto Sans SC", "Microsoft YaHei", sans-serif`;
             tCtx.fillStyle = CONFIG.color;
             tCtx.strokeStyle = CONFIG.color; 
             tCtx.lineWidth = CONFIG.strokeWeight; 
