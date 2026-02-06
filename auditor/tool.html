@@ -104,14 +104,48 @@
         }
 
         function generate() {
-            const name = document.getElementById('auditorName').value.trim();
-            if(!name) return alert('请输入姓名');
-            drawContent(canvas);
-            const link = document.createElement('a');
-            link.download = `落款_${name}.png`;
-            link.href = canvas.toDataURL('image/png', 1.0);
-            link.click();
+    const name = document.getElementById('custName').value.trim();
+    if(!name) return alert('请输入名称');
+    
+    drawContent(canvas); 
+    
+    const dataURL = canvas.toDataURL('image/png');
+    
+    // 检测是否在微信环境中
+    const isWechat = /MicroMessenger/i.test(navigator.userAgent);
+    
+    if (isWechat) {
+        // 微信端：创建一个全屏浮层，显示生成的图片，提示长按保存
+        const mask = document.createElement('div');
+        mask.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;";
+        
+        const imgShow = document.createElement('img');
+        imgShow.src = dataURL;
+        imgShow.style.cssText = "width:90%;border-radius:8px;box-shadow:0 0 20px rgba(255,255,255,0.2);";
+        
+        const tip = document.createElement('p');
+        tip.innerText = "已生成高清贺卡\n☝️ 长按上方图片选择「保存到相册」";
+        tip.style.cssText = "color:white;margin-top:20px;text-align:center;font-size:14px;line-height:1.6;";
+
+        const closeBtn = document.createElement('div');
+        closeBtn.innerText = "✕ 关闭预览";
+        closeBtn.style.cssText = "margin-top:20px;color:#999;border:1px solid #666;padding:5px 15px;border-radius:20px;font-size:12px;";
+        closeBtn.onclick = () => document.body.removeChild(mask);
+
+        mask.appendChild(imgShow);
+        mask.appendChild(tip);
+        mask.appendChild(closeBtn);
+        document.body.appendChild(mask);
+    } else {
+        // 非微信端（普通浏览器）：直接下载
+        const link = document.createElement('a');
+        link.download = `2026马年贺卡_${name}.png`;
+        link.href = dataURL;
+        link.click();
+    }
         }
+
+        
     </script>
 </body>
 </html>
