@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026审核员落款-高清精修版</title>
+    <title>2026审核员落款生成器</title>
     <!-- 强制请求简体中文字符集，防止回退到繁体 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com">
     <style>
@@ -18,10 +18,10 @@
 </head>
 <body>
     <div class="box">
-        <h2>✍️ 审核员落款 (0.5微增强版)</h2>
+        <h2>✍️ 审核员落款生成</h2>
         <div id="fontStatus" class="status">正在检查高清简体字库...</div>
-        <input type="text" id="auditorName" placeholder="输入姓名" oninput="drawPreview()">
-        <button onclick="generate()">导出高清 PNG</button>
+        <input type="text" id="auditorName" placeholder="输入审核员姓名" oninput="drawPreview()">
+        <button onclick="generate()">导出并下载</button>
         <canvas id="previewCanvas"></canvas>
     </div>
 
@@ -36,7 +36,7 @@
             targetH: 1400,
             fontSize: 27,
             color: "#b10405",
-            endX_ratio: 0.904,
+            endX_ratio: 0.907,
             startY_ratio: 0.780,
             strokeWeight: 0.4,   // 已调回 0.5
             charSpacing: 1.5,     
