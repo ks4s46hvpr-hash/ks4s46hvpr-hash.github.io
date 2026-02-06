@@ -3,94 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>企业贺卡制作工具 </title>
+    <title>2026马年贺卡</title>
     <style>
-        body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background: rgb(216, 187, 165); }
-        .box { background: rgba(255,255,255,0.95); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 340px; text-align: center; }
-        h2 { color: rgb(33, 44, 53); margin-top: 0; font-size: 20px; }
-        input { padding: 14px; width: 85%; border: 1px solid #ccc; border-radius: 10px; outline: none; font-size: 18px; margin: 15px 0; font-weight: bold; text-align: center; }
-        button { padding: 14px; background: rgb(33, 44, 53); color: white; border: none; border-radius: 10px; cursor: pointer; width: 95%; font-weight: bold; font-size: 16px; }
-        canvas { max-width: 100%; border-radius: 5px; box-shadow: 0 8px 25px rgba(0,0,0,0.2); display: none; margin-top: 20px; }
-        .copyright { margin-top: 25px; font-size: 11px; color: #666; }
+        body { font-family: 'Source Han Sans CN', 'Noto Sans SC', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background: #f0ebe5; }
+        .box { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 380px; text-align: center; }
+        h2 { color: #b10405; margin-top: 0; font-size: 22px; }
+        input { padding: 12px; width: 85%; border: 1.5px solid #ddd; border-radius: 8px; margin: 15px 0; font-size: 16px; text-align: center; font-weight: bold; outline: none; }
+        input:focus { border-color: #b10405; }
+        button { padding: 14px 25px; background: #b10405; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 95%; font-size: 16px; }
+        button:hover { background: #d40506; }
+        .preview-label { margin-top: 20px; font-size: 13px; color: #999; font-weight: bold; }
+        canvas { max-width: 100%; margin-top: 10px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); background: #eee; }
     </style>
 </head>
 <body>
     <div class="box">
-        <h2>2026 丙午马年贺卡制作工具</h2>
-        <input type="text" id="custName" placeholder="输入企业名称">
-        <button onclick="generate()">生成贺卡</button>
+        <h2>🧧 2026 贺卡制作</h2>
+        <input type="text" id="custName" placeholder="输入企业名称" oninput="drawPreview()">
+        <button onclick="generate()">生成并下载</button>
+        <div class="preview-label">实时预览</div>
+        <canvas id="previewCanvas"></canvas>
     </div>
-    <canvas id="previewCanvas"></canvas>
 
     <script>
-        async function generate() {
-            let nameInput = document.getElementById('custName').value.trim();
-            let name = nameInput.replace(/[\\/:*?"<>|：]/g, '');
+        const canvas = document.getElementById('previewCanvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.src = "bg.png"; 
+
+        const CONFIG = {
+            fontSize: 27,
+            color: "#b10405", // 更新为指定红色
+            startX_ratio: 0.600,
+            startY_ratio: 0.369,
+            endX_ratio: 0.844,
+            maxLineChars: 15,
+            strokeWeight: 0.8 // 额外加粗厚度
+        };
+
+        img.onload = () => drawPreview();
+
+        function drawContent(targetCanvas) {
+            const tCtx = targetCanvas.getContext('2d');
+            targetCanvas.width = img.width;
+            targetCanvas.height = img.height;
+            tCtx.drawImage(img, 0, 0);
+
+            const name = document.getElementById('custName').value.trim();
+            if (!name) return;
+
+            const fullText = `致${name}：`;
+            const lineHeight = CONFIG.fontSize * 1.4;
+            
+            // 坐标微调：左移半个字，上移一行
+            const startX = (targetCanvas.width * CONFIG.startX_ratio) - (CONFIG.fontSize * 0.5);
+            const startY = (targetCanvas.height * CONFIG.startY_ratio) - lineHeight;
+            const endXLimit = targetCanvas.width * CONFIG.endX_ratio;
+
+            // 字体加粗增强
+            tCtx.font = `505 ${CONFIG.fontSize}px "Source Han Sans CN", "Noto Sans SC", "Microsoft YaHei", sans-serif`;
+            tCtx.fillStyle = CONFIG.color;
+            tCtx.strokeStyle = CONFIG.color; 
+            tCtx.lineWidth = CONFIG.strokeWeight; 
+            tCtx.textAlign = "left";
+            tCtx.textBaseline = "top";
+
+            let curX = startX;
+            let curY = startY;
+
+            for (let i = 0; i < fullText.length; i++) {
+                const char = fullText[i];
+                const charWidth = tCtx.measureText(char).width;
+
+                const isColon = (char === "：" || char === ":");
+                const shouldWrap = (i > 0 && i % CONFIG.maxLineChars === 0) || (curX + charWidth > endXLimit);
+
+                if (shouldWrap && !isColon) {
+                    curX = startX;
+                    curY += lineHeight;
+                }
+
+                tCtx.fillText(char, curX, curY);
+                tCtx.strokeText(char, curX, curY); 
+                curX += charWidth + 2;
+            }
+        }
+
+        function drawPreview() {
+            if (img.complete) drawContent(canvas);
+        }
+
+        function generate() {
+            const name = document.getElementById('custName').value.trim();
             if(!name) return alert('请输入名称');
-
-            const canvas = document.getElementById('previewCanvas');
-            const ctx = canvas.getContext('2d');
-            const img = new Image();
-            img.crossOrigin = "anonymous";
-            img.src = "bg.png?t=" + new Date().getTime();
-
-            img.onload = function() {
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
-
-                const fontSize = 42; 
-                const startX = (canvas.width * 0.854) + 45; // 已应用您的 +45 右躲
-                const startY = (canvas.height * 0.076) - 6; // 已应用您的 -6 纵移
-                const bottomLimit = canvas.height * 0.464; 
-                
-                // 玄青色 + 透明度
-                ctx.fillStyle = "rgba(33, 44, 53, 0.92)"; 
-                ctx.textAlign = "center";
-                ctx.textBaseline = "top";
-
-                // 字体堆栈：优先 Windows 隶书, Mac 报隶书
-                const fontStack = `bold ${fontSize}px "LiSu", "Baoli SC", "隶书", serif`;
-                const zhiFont = `bold 34px "LiSu", "Baoli SC", "隶书", serif`;
-
-                // 绘制“致” (动态居中逻辑已整合)
-                const chars = name.split('');
-                const lineSpacing = fontSize * 1.15;
-                const columnSpacing = fontSize * 1.4;
-                const zhiToNameGap = 65;
-
-                let curX = startX, curY = startY + zhiToNameGap, colsX = [startX];
-                chars.forEach((char) => {
-                    if (curY + lineSpacing > bottomLimit) {
-                        curX -= columnSpacing; curY = startY + zhiToNameGap;
-                        if(!colsX.includes(curX)) colsX.push(curX);
-                    }
-                    curY += lineSpacing;
-                });
-                const centerX = (Math.min(...colsX) + Math.max(...colsX)) / 2;
-
-                ctx.font = zhiFont;
-                ctx.fillText("致", centerX, startY);
-
-                // 绘制名字
-                ctx.font = fontStack;
-                curX = startX; curY = startY + zhiToNameGap;
-                chars.forEach((char) => {
-                    if (curY + lineSpacing > bottomLimit) {
-                        curX -= columnSpacing; curY = startY + zhiToNameGap;
-                    }
-                    ctx.fillText(char, curX, curY);
-                    curY += lineSpacing;
-                });
-
-                canvas.style.display = "block";
-                setTimeout(() => {
-                    const link = document.createElement('a');
-                    link.download = `2026贺卡_${name}.jpg`;
-                    link.href = canvas.toDataURL('image/jpeg', 0.95);
-                    link.click();
-                }, 300);
-            };
+            drawContent(canvas); 
+            const link = document.createElement('a');
+            link.download = `2026马年贺卡_${name}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
         }
     </script>
 </body>

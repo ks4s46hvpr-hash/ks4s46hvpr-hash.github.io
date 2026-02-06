@@ -35,7 +35,7 @@
             const ctx = canvas.getContext('2d');
             const img = new Image();
             img.crossOrigin = "anonymous";
-            img.src = "bg.jpg?t=" + new Date().getTime(); // 加个时间戳防止缓存旧图
+            img.src = "bg.png?t=" + new Date().getTime(); // 加个时间戳防止缓存旧图
 
             img.onload = function() {
                 canvas.width = img.width;
