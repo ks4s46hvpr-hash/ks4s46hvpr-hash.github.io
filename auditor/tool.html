@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2026审核员落款生成器</title>
-    <!-- 强制请求简体中文字符集，防止回退到繁体 -->
+    <!-- 强制请求简体中文字符集 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com">
     <style>
         body { font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background: #f0ebe5; }
@@ -31,21 +31,25 @@
         const img = new Image();
         img.src = "bg.png";
 
+        // 检测 Windows 系统
+        const isWindows = navigator.platform.toLowerCase().includes('win');
+
         const CONFIG = {
             targetW: 2000,
             targetH: 1400,
             fontSize: 27,
             color: "#b10405",
-            endX_ratio: 0.907,
+            endX_ratio: 0.907, 
             startY_ratio: 0.780,
-            strokeWeight: 0.4,   // 已调回 0.5
+            // Windows 使用 0.2，其他系统使用 0.4
+            strokeWeight: isWindows ? 0.2 : 0.4,   
             charSpacing: 1.5,     
             lineHeightRatio: 1.6
         };
 
         // 字体加载处理
         document.fonts.ready.then(() => {
-            document.getElementById('fontStatus').innerText = "✅ 简体字库加载完成";
+            document.getElementById('fontStatus').innerText = `✅ 简体字库已就绪 (${isWindows ? 'Windows 模式' : '标准模式'})`;
             if(img.complete) drawPreview();
         });
 
