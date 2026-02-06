@@ -3,23 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026审核员落款-多端兼容版</title>
-    <!-- 引入思源黑体 Web Font -->
+    <title>2026审核员落款-高清精修版</title>
+    <!-- 强制请求简体中文字符集，防止回退到繁体 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com">
     <style>
-        body { font-family: 'Noto Sans SC', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background: #f0ebe5; }
+        body { font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background: #f0ebe5; }
         .box { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 400px; text-align: center; }
         h2 { color: #b10405; margin-top: 0; font-size: 20px; }
         input { padding: 14px; width: 85%; border: 1.5px solid #ddd; border-radius: 10px; font-size: 16px; text-align: center; font-weight: bold; outline: none; }
         button { padding: 15px 25px; background: #b10405; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; width: 95%; font-size: 16px; }
-        .loading-mask { font-size: 12px; color: #d35400; margin-bottom: 10px; display: block; }
+        .status { font-size: 12px; color: #888; margin-bottom: 10px; }
         canvas { width: 100%; max-width: 800px; margin-top: 10px; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); background: #fff; }
     </style>
 </head>
 <body>
     <div class="box">
-        <h2>✍️ 审核员落款 (跨平台兼容版)</h2>
-        <span id="fontStatus" class="loading-mask">⏳ 高清字体库加载中...</span>
+        <h2>✍️ 审核员落款 (0.5微增强版)</h2>
+        <div id="fontStatus" class="status">正在检查高清简体字库...</div>
         <input type="text" id="auditorName" placeholder="输入姓名" oninput="drawPreview()">
         <button onclick="generate()">导出高清 PNG</button>
         <canvas id="previewCanvas"></canvas>
@@ -31,30 +31,25 @@
         const img = new Image();
         img.src = "bg.png";
 
-        // 判断是否为 Windows 系统
-        const isWin = navigator.platform.toUpperCase().indexOf('WIN') > -1;
-
         const CONFIG = {
             targetW: 2000,
             targetH: 1400,
-            fontSize: 27,        // 调整为 27
+            fontSize: 27,
             color: "#b10405",
             endX_ratio: 0.904,
             startY_ratio: 0.780,
-            // Windows 下描边微调加重，macOS 保持 0.5
-            strokeWeight: isWin ? 0.8 : 0.5, 
-            charSpacing: isWin ? 7 : 6,      // Windows 字间距补偿
+            strokeWeight: 0.4,   // 已调回 0.5
+            charSpacing: 1.5,     
             lineHeightRatio: 1.6
         };
 
-        // 确保字体和图片都加载完再画
-        Promise.all([
-            document.fonts.ready,
-            new Promise(resolve => img.onload = resolve)
-        ]).then(() => {
-            document.getElementById('fontStatus').style.display = 'none';
-            drawPreview();
+        // 字体加载处理
+        document.fonts.ready.then(() => {
+            document.getElementById('fontStatus').innerText = "✅ 简体字库加载完成";
+            if(img.complete) drawPreview();
         });
+
+        img.onload = () => drawPreview();
 
         function drawContent(targetCanvas) {
             const tCtx = targetCanvas.getContext('2d');
@@ -67,12 +62,12 @@
 
             const lines = [`中经科环审核员：${name}`, `敬上`];
             
-            // 字体声明：Noto Sans SC 对应 Google Fonts
-            tCtx.font = `900 ${CONFIG.fontSize}px "Noto Sans SC", "Source Han Sans CN", sans-serif`;
+            tCtx.font = `900 ${CONFIG.fontSize}px "Noto Sans SC", "Source Han Sans CN", "Microsoft YaHei", sans-serif`;
             tCtx.fillStyle = CONFIG.color;
             tCtx.strokeStyle = CONFIG.color;
             tCtx.lineWidth = CONFIG.strokeWeight;
             tCtx.textBaseline = "top";
+            tCtx.textAlign = "left";
 
             const anchorX = targetCanvas.width * CONFIG.endX_ratio;
             let currentY = targetCanvas.height * CONFIG.startY_ratio;
