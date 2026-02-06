@@ -3,147 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026审核员落款生成器</title>
+    <title>2026审核员落款-多端兼容版</title>
+    <!-- 引入思源黑体 Web Font -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com">
     <style>
-        body { font-family: 'Source Han Sans CN', 'Noto Sans SC', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background: #f0ebe5; }
+        body { font-family: 'Noto Sans SC', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background: #f0ebe5; }
         .box { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 400px; text-align: center; }
-        h2 { color: #b10405; margin-top: 0; font-size: 20px; letter-spacing: 1px; }
-        .input-group { margin: 20px 0; }
-        input { padding: 14px; width: 85%; border: 1.5px solid #ddd; border-radius: 10px; font-size: 16px; text-align: center; font-weight: bold; outline: none; transition: 0.3s; }
-        input:focus { border-color: #b10405; box-shadow: 0 0 8px rgba(177, 4, 5, 0.2); }
-        button { padding: 15px 25px; background: #b10405; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; width: 95%; font-size: 16px; transition: 0.3s; }
-        button:hover { background: #d40506; transform: translateY(-1px); }
-        .preview-label { margin-top: 25px; font-size: 12px; color: #999; font-weight: bold; text-transform: uppercase; }
-        /* 预览区域适配屏幕，导出则是 2000*1400 */
+        h2 { color: #b10405; margin-top: 0; font-size: 20px; }
+        input { padding: 14px; width: 85%; border: 1.5px solid #ddd; border-radius: 10px; font-size: 16px; text-align: center; font-weight: bold; outline: none; }
+        button { padding: 15px 25px; background: #b10405; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; width: 95%; font-size: 16px; }
+        .loading-mask { font-size: 12px; color: #d35400; margin-bottom: 10px; display: block; }
         canvas { width: 100%; max-width: 800px; margin-top: 10px; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); background: #fff; }
-        .footer-tips { margin-top: 15px; font-size: 11px; color: #bbb; }
     </style>
 </head>
 <body>
     <div class="box">
-        <h2>✍️ 审核员落款自动生成</h2>
-        <div class="input-group">
-            <input type="text" id="auditorName" placeholder="请输入审核员姓名" oninput="drawPreview()">
-        </div>
-        <button onclick="generate()">生成并下载</button>
-        <div class="preview-label">实时预览</div>
+        <h2>✍️ 审核员落款 (跨平台兼容版)</h2>
+        <span id="fontStatus" class="loading-mask">⏳ 高清字体库加载中...</span>
+        <input type="text" id="auditorName" placeholder="输入姓名" oninput="drawPreview()">
+        <button onclick="generate()">导出高清 PNG</button>
         <canvas id="previewCanvas"></canvas>
-        <div class="footer-tips">规格：2000*1400 | 字体：思源黑体 | 颜色：#b10405</div>
     </div>
 
     <script>
         const canvas = document.getElementById('previewCanvas');
         const ctx = canvas.getContext('2d');
         const img = new Image();
-        img.crossOrigin = "anonymous";
-        img.src = "bg.png"; // 必须在同级目录下
+        img.src = "bg.png";
 
-        // --- 核心参数配置 ---
+        // 判断是否为 Windows 系统
+        const isWin = navigator.platform.toUpperCase().indexOf('WIN') > -1;
+
         const CONFIG = {
             targetW: 2000,
             targetH: 1400,
-            fontSize: 27,
+            fontSize: 27,        // 调整为 27
             color: "#b10405",
-            endX_ratio: 0.904,    // 右对齐锚点
-            startY_ratio: 0.780,  // 纵向起始位置
-            strokeWeight: 0.5,    // 加粗增强量
-            charSpacing: 1.5,       // 字间距 (像素)
-            lineHeightRatio: 1.6  // 行间距
+            endX_ratio: 0.904,
+            startY_ratio: 0.780,
+            // Windows 下描边微调加重，macOS 保持 0.5
+            strokeWeight: isWin ? 0.8 : 0.5, 
+            charSpacing: isWin ? 7 : 6,      // Windows 字间距补偿
+            lineHeightRatio: 1.6
         };
 
-        img.onload = () => drawPreview();
+        // 确保字体和图片都加载完再画
+        Promise.all([
+            document.fonts.ready,
+            new Promise(resolve => img.onload = resolve)
+        ]).then(() => {
+            document.getElementById('fontStatus').style.display = 'none';
+            drawPreview();
+        });
 
-        /**
-         * 核心绘制逻辑
-         * @param {HTMLCanvasElement} targetCanvas 
-         */
         function drawContent(targetCanvas) {
             const tCtx = targetCanvas.getContext('2d');
-            
-            // 1. 设置高清画布尺寸
             targetCanvas.width = CONFIG.targetW;
             targetCanvas.height = CONFIG.targetH;
-            
-            // 2. 绘制背景
             tCtx.drawImage(img, 0, 0, CONFIG.targetW, CONFIG.targetH);
 
             const name = document.getElementById('auditorName').value.trim();
             if (!name) return;
 
-            // 3. 准备文案
-            const lines = [
-                `中经科环审核员：${name}`,
-                `敬上`
-            ];
-
-            // 4. 设置字体样式
-            tCtx.font = `900 ${CONFIG.fontSize}px "Source Han Sans CN", "Noto Sans SC", "Microsoft YaHei", sans-serif`;
+            const lines = [`中经科环审核员：${name}`, `敬上`];
+            
+            // 字体声明：Noto Sans SC 对应 Google Fonts
+            tCtx.font = `900 ${CONFIG.fontSize}px "Noto Sans SC", "Source Han Sans CN", sans-serif`;
             tCtx.fillStyle = CONFIG.color;
             tCtx.strokeStyle = CONFIG.color;
             tCtx.lineWidth = CONFIG.strokeWeight;
             tCtx.textBaseline = "top";
-            tCtx.textAlign = "left"; // 手动控制位置，设为左对齐
 
             const anchorX = targetCanvas.width * CONFIG.endX_ratio;
             let currentY = targetCanvas.height * CONFIG.startY_ratio;
             const lineHeight = CONFIG.fontSize * CONFIG.lineHeightRatio;
 
-            // 5. 逐行计算并绘制 (手动实现精准右对齐)
             lines.forEach(text => {
                 const chars = text.split('');
-                
-                // 计算当前行在含字间距情况下的总宽度
                 let totalRowWidth = 0;
                 chars.forEach((char, idx) => {
                     totalRowWidth += tCtx.measureText(char).width;
-                    if (idx < chars.length - 1) {
-                        totalRowWidth += CONFIG.charSpacing;
-                    }
+                    if (idx < chars.length - 1) totalRowWidth += CONFIG.charSpacing;
                 });
 
-                // 计算起始 X 坐标，确保末尾对齐 anchorX
                 let drawX = anchorX - totalRowWidth;
 
-                // 逐字绘制，保持间距一致
-                chars.forEach((char, idx) => {
+                chars.forEach((char) => {
                     const charWidth = tCtx.measureText(char).width;
-                    
-                    // 填充文字
                     tCtx.fillText(char, drawX, currentY);
-                    // 描边增强
                     if (CONFIG.strokeWeight > 0) {
                         tCtx.strokeText(char, drawX, currentY);
                     }
-                    
-                    // 移动到下一个字的位置
                     drawX += charWidth + CONFIG.charSpacing;
                 });
-
-                // 换行
                 currentY += lineHeight;
             });
         }
 
-        // 实时预览功能
         function drawPreview() {
-            if (img.complete) {
-                drawContent(canvas);
-            }
+            if (img.complete) drawContent(canvas);
         }
 
-        // 导出下载功能
         function generate() {
             const name = document.getElementById('auditorName').value.trim();
-            if(!name) {
-                alert('请先输入审核员姓名');
-                return;
-            }
-            
-            // 确保绘制的是最新内容
-            drawContent(canvas); 
-            
+            if(!name) return alert('请输入姓名');
+            drawContent(canvas);
             const link = document.createElement('a');
-            link.download = `落款_${name}_2000x1400.png`;
+            link.download = `落款_${name}.png`;
             link.href = canvas.toDataURL('image/png', 1.0);
             link.click();
         }
