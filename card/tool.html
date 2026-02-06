@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2026马年贺卡</title>
-    <!-- 强制请求简体中文字符集，防止回退到繁体 -->
+    <!-- 强制请求简体中文字符集 -->
     <link rel="stylesheet" href="https://fonts.googleapis.com">
     <style>
         body { font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; background: #f0ebe5; }
@@ -13,10 +13,12 @@
         input { padding: 12px; width: 85%; border: 1.5px solid #ddd; border-radius: 8px; margin: 15px 0; font-size: 16px; text-align: center; font-weight: bold; outline: none; }
         input:focus { border-color: #b10405; }
         button { padding: 14px 25px; background: #b10405; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 95%; font-size: 16px; }
-        button:hover { background: #d40506; }
         .status { font-size: 12px; color: #888; margin-bottom: 10px; }
         .preview-label { margin-top: 10px; font-size: 13px; color: #999; font-weight: bold; }
         canvas { max-width: 100%; margin-top: 10px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); background: #eee; }
+        
+        /* 隐蔽式版权声明 */
+        .copyright { margin-top: 30px; font-size: 10px; color: #9a8d83; letter-spacing: 0.2px; text-align: center; line-height: 1.2; opacity: 0.7; }
     </style>
 </head>
 <body>
@@ -29,6 +31,10 @@
         <canvas id="previewCanvas"></canvas>
     </div>
 
+    <div class="copyright">
+        制作：中经科环 xyx@zjqc | © 2026 丙午马年专用
+    </div>
+
     <script>
         const canvas = document.getElementById('previewCanvas');
         const ctx = canvas.getContext('2d');
@@ -36,7 +42,6 @@
         img.crossOrigin = "anonymous";
         img.src = "bg.png"; 
 
-        // 检测 Windows 系统
         const isWindows = navigator.platform.toLowerCase().includes('win');
 
         const CONFIG = {
@@ -46,13 +51,11 @@
             startY_ratio: 0.369,
             endX_ratio: 0.844,
             maxLineChars: 15,
-            // Windows 使用 0.15，其他（Mac等）使用 0.4
             strokeWeight: isWindows ? 0.15 : 0.4 
         };
 
-        // 字体加载处理
         document.fonts.ready.then(() => {
-            document.getElementById('fontStatus').innerText = `✅ 简体字库就绪 (${isWindows ? 'Win模式' : '标准模式'})`;
+            document.getElementById('fontStatus').innerText = `✅ 简体字库已就绪 (${isWindows ? 'Win 0.2' : 'Mac 0.4'})`;
             if(img.complete) drawPreview();
         });
 
@@ -74,7 +77,6 @@
             const startY = (targetCanvas.height * CONFIG.startY_ratio) - lineHeight;
             const endXLimit = targetCanvas.width * CONFIG.endX_ratio;
 
-            // 字体加粗增强：优先使用 Noto Sans SC
             tCtx.font = `900 ${CONFIG.fontSize}px "Noto Sans SC", "Source Han Sans CN", "Microsoft YaHei", sans-serif`;
             tCtx.fillStyle = CONFIG.color;
             tCtx.strokeStyle = CONFIG.color; 
@@ -110,47 +112,37 @@
         }
 
         function generate() {
-    const name = document.getElementById('custName').value.trim();
-    if(!name) return alert('请输入名称');
-    
-    drawContent(canvas); 
-    
-    const dataURL = canvas.toDataURL('image/png');
-    
-    // 检测是否在微信环境中
-    const isWechat = /MicroMessenger/i.test(navigator.userAgent);
-    
-    if (isWechat) {
-        // 微信端：创建一个全屏浮层，显示生成的图片，提示长按保存
-        const mask = document.createElement('div');
-        mask.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;";
-        
-        const imgShow = document.createElement('img');
-        imgShow.src = dataURL;
-        imgShow.style.cssText = "width:90%;border-radius:8px;box-shadow:0 0 20px rgba(255,255,255,0.2);";
-        
-        const tip = document.createElement('p');
-        tip.innerText = "已生成贺卡\n☝️ 长按上方图片选择「保存到相册」";
-        tip.style.cssText = "color:white;margin-top:20px;text-align:center;font-size:14px;line-height:1.6;";
+            const name = document.getElementById('custName').value.trim();
+            if(!name) return alert('请输入名称');
+            drawContent(canvas); 
+            
+            const dataURL = canvas.toDataURL('image/png', 1.0);
+            const isWechat = /MicroMessenger/i.test(navigator.userAgent);
 
-        const closeBtn = document.createElement('div');
-        closeBtn.innerText = "✕ 关闭预览";
-        closeBtn.style.cssText = "margin-top:20px;color:#999;border:1px solid #666;padding:5px 15px;border-radius:20px;font-size:12px;";
-        closeBtn.onclick = () => document.body.removeChild(mask);
-
-        mask.appendChild(imgShow);
-        mask.appendChild(tip);
-        mask.appendChild(closeBtn);
-        document.body.appendChild(mask);
-    } else {
-        // 非微信端（普通浏览器）：直接下载
-        const link = document.createElement('a');
-        link.download = `2026马年贺卡_${name}.png`;
-        link.href = dataURL;
-        link.click();
-    }
-}
-
+            if (isWechat) {
+                const mask = document.createElement('div');
+                mask.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:999;display:flex;flex-direction:column;align-items:center;padding-top:10%;";
+                const imgShow = document.createElement('img');
+                imgShow.src = dataURL;
+                imgShow.style.cssText = "width:85%;border-radius:8px;box-shadow:0 0 20px rgba(0,0,0,0.5);";
+                const tip = document.createElement('p');
+                tip.innerHTML = "已生成高清贺卡<br>☝️ 长按图片保存到相册";
+                tip.style.cssText = "color:white;margin:20px;text-align:center;font-size:16px;line-height:1.6;";
+                const closeBtn = document.createElement('div');
+                closeBtn.innerText = "关闭预览";
+                closeBtn.style.cssText = "margin-top:10px;color:white;border:1px solid #fff;padding:8px 25px;border-radius:20px;font-size:14px;cursor:pointer;";
+                closeBtn.onclick = () => document.body.removeChild(mask);
+                mask.appendChild(imgShow);
+                mask.appendChild(tip);
+                mask.appendChild(closeBtn);
+                document.body.appendChild(mask);
+            } else {
+                const link = document.createElement('a');
+                link.download = `2026马年贺卡_${name}.png`;
+                link.href = dataURL;
+                link.click();
+            }
+        }
     </script>
 </body>
 </html>
